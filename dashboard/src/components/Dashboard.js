@@ -1,8 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
-import Apps from "./App";
-import Funds from "./Funds";
+import Explainability from "./Explainability";
+import RepaymentSimulation from "./RepaymentSimulation";
 import Holdings from "./Holdings";
 
 import Orders from "./Orders";
@@ -20,11 +20,11 @@ const Dashboard = () => {
       <div className="content">
         <Routes>
           <Route exact path="/" element={<Summary />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/holdings" element={<Holdings />} />
-          <Route path="/positions" element={<Positions />} />
-          <Route path="/funds" element={<Funds />} />
-          <Route path="/apps" element={<Apps />} />
+          <Route path="/loanrequest" element={<Orders />} />
+          <Route path="/creditapplication" element={<Holdings />} />
+          <Route path="/riskassessment" element={<Positions />} />
+          <Route path="/repayment" element={<RepaymentSimulation />} />
+          <Route path="/explainability" element={<Explainability />} />
         </Routes>
       </div>
     </div>

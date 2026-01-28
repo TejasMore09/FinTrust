@@ -31,7 +31,7 @@ const BuyActionWindow = ({ uid }) => {
       <div className="regular-order">
         <div className="inputs">
           <fieldset>
-            <legend>Qty.</legend>
+            <legend>EMI</legend>
             <input
               type="number"
               name="qty"
@@ -41,7 +41,7 @@ const BuyActionWindow = ({ uid }) => {
             />
           </fieldset>
           <fieldset>
-            <legend>Price</legend>
+            <legend>Cost</legend>
             <input
               type="number"
               name="price"
@@ -55,7 +55,7 @@ const BuyActionWindow = ({ uid }) => {
       </div>
 
       <div className="buttons">
-        <span>Margin required ₹140.65</span>
+        <span>Minimum First Installment req : 1000 INR</span>
         <div>
           <Link className="btn btn-blue" onClick={handleBuyClick}>
             Buy

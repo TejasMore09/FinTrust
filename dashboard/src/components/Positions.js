@@ -2,47 +2,45 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const Positions = () => {
-  const [decisions, setDecisions] = useState([]);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:3000/credit-decisions")
-      .then(res => setDecisions(res.data))
+    axios
+      .get("http://localhost:3000/risk-breakdown")
+      .then(res => setData(res.data))
       .catch(err => console.error(err));
   }, []);
+
+  if (!data) return <p>Loading risk breakdown...</p>;
 
   return (
     <>
       <h3 className="title">
-        Credit Decisions ({decisions.length})
+        Risk Breakdown (Total Applications: {data.total})
       </h3>
 
       <div className="order-table">
         <table>
           <thead>
             <tr>
-              <th>Applicant ID</th>
-              <th>Risk</th>
-              <th>Decision</th>
-              <th>Confidence</th>
-              <th>Reason</th>
+              <th>Risk Category</th>
+              <th>Count</th>
             </tr>
           </thead>
 
           <tbody>
-            {decisions.map(decision => (
-              <tr key={decision._id}>
-                <td>{decision.applicantId || "—"}</td>
-                <td className={
-                  decision.risk === "High" ? "loss" :
-                  decision.risk === "Low" ? "profit" : "neutral"
-                }>
-                  {decision.risk}
-                </td>
-                <td>{decision.decision}</td>
-                <td>{(decision.confidence * 100).toFixed(0)}%</td>
-                <td>{decision.reason}</td>
-              </tr>
-            ))}
+            <tr>
+              <td className="profit">Low Risk</td>
+              <td>{data.breakdown.Low}</td>
+            </tr>
+            <tr>
+              <td className="neutral">Medium Risk</td>
+              <td>{data.breakdown.Medium}</td>
+            </tr>
+            <tr>
+              <td className="loss">High Risk</td>
+              <td>{data.breakdown.High}</td>
+            </tr>
           </tbody>
         </table>
       </div>

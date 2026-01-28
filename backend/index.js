@@ -5,6 +5,9 @@ const cors = require("cors");
 const { spawn } = require("child_process");
 const path = require("path");
 const axios = require("axios");
+const cookieParser = require("cookie-parser");
+const authRoutes = require("./Routes/AuthRoute");
+
 
 const { CreditApplicationModel } = require("./model/CreditApplicationModel");
 const { LoanRequestModel } = require("./model/LoanRequestModel");
@@ -13,21 +16,28 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const uri = process.env.MONGO_URL;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3002", "http://localhost:3001"],
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
+app.use("/", authRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("FinTrust Backend Running");
 });
 
-/* ================= CREDIT APPLICATION (ML + SAFE FALLBACK) ================= */
 
 app.post("/credit-application", async (req, res) => {
+  console.log("📥 CREDIT APPLICATION BODY:", req.body); 
   try {
-    // 1. Save raw application
+    //save raw application
     const application = await CreditApplicationModel.create(req.body);
 
-    // 2. Run Python ML
     const pythonPath = path.join(__dirname, "venv", "Scripts", "python.exe");
     const python = spawn(pythonPath, [
       path.join(__dirname, "ml", "credit_risk_infer.py"),
@@ -49,14 +59,12 @@ app.post("/credit-application", async (req, res) => {
     python.on("close", async () => {
       let decision;
 
-      // 3. Parse ML output
       try {
         decision = JSON.parse(output);
       } catch {
         decision = null;
       }
 
-      // 4. FORCE FALLBACK IF ML FAILS LOGICALLY
       if (
         !decision ||
         decision.risk === "Error" ||
@@ -71,7 +79,6 @@ app.post("/credit-application", async (req, res) => {
         };
       }
 
-      // 5. UPDATE SAME APPLICATION DOCUMENT
       const updated = await CreditApplicationModel.findByIdAndUpdate(
         application._id,
         {
@@ -84,7 +91,7 @@ app.post("/credit-application", async (req, res) => {
         { new: true }
       );
 
-      console.log("✅ UPDATED APPLICATION:", updated);
+      console.log("UPDATED APPLICATION:", updated);
 
       return res.json(updated);
     });
@@ -94,7 +101,7 @@ app.post("/credit-application", async (req, res) => {
   }
 });
 
-/* ================= CREDIT APPLICATIONS (DASHBOARD) ================= */
+
 
 app.get("/credit-applications", async (req, res) => {
   const applications = await CreditApplicationModel.find({}).lean();
@@ -110,7 +117,6 @@ app.get("/credit-applications", async (req, res) => {
   );
 });
 
-/* ================= REPAYMENT SIMULATION ================= */
 
 app.post("/repayment-simulation", async (req, res) => {
   const { amount, tenure, interestRate, scenario, applicantId } = req.body;
@@ -139,7 +145,6 @@ app.post("/repayment-simulation", async (req, res) => {
     affordabilityRatio: affordabilityRatio.toFixed(2),
   };
 
-  // 🔥 REAL REASONING STARTS HERE
   if (scenario === "job_loss") {
     if (risk === "High" || confidence < 0.6) {
       response.strategy = "EMI Moratorium";
@@ -176,7 +181,7 @@ app.post("/repayment-simulation", async (req, res) => {
   res.json(response);
 });
 
-/* ================= EXPLAINABILITY ================= */
+/*EXPLAINABILITY*/
 
 app.get("/explainability", async (req, res) => {
   const applications = await CreditApplicationModel.find({
@@ -214,7 +219,6 @@ app.get("/explainability", async (req, res) => {
   res.json(explained);
 });
 
-/* ================= LLM EXPLAINABILITY ================= */
 
 app.post("/llm-explain", async (req, res) => {
   const {
@@ -225,7 +229,6 @@ app.post("/llm-explain", async (req, res) => {
     behavior_score
   } = req.body;
 
-  // -------- RULE-BASED FALLBACK (ALWAYS AVAILABLE)
   const fallbackExplanation = `
 The applicant is assessed as ${risk} risk with a confidence of ${Math.round(
     confidence * 100
@@ -290,9 +293,6 @@ Explain the decision in simple language for a non-technical user.
 
 
 
-
-/* ================= RISK BREAKDOWN ================= */
-
 app.get("/risk-breakdown", async (req, res) => {
   const applications = await CreditApplicationModel.find({
     status: "PROCESSED",
@@ -316,7 +316,6 @@ app.get("/risk-breakdown", async (req, res) => {
   });
 });
 
-/* ================= LOAN REQUEST ================= */
 
 app.post("/loan-request", async (req, res) => {
   try {
@@ -331,17 +330,16 @@ app.get("/loan-requests", async (req, res) => {
   res.json(await LoanRequestModel.find({}));
 });
 
-/* ================= SERVER ================= */
 
 async function startServer() {
   try {
     await mongoose.connect(uri);
-    console.log("✅ MongoDB connected");
+    console.log("MongoDB connected");
     app.listen(PORT, () =>
-      console.log(`🚀 FinTrust server running on port ${PORT}`)
+      console.log(`FinTrust server running on port ${PORT}`)
     );
   } catch (err) {
-    console.error("❌ MongoDB error:", err.message);
+    console.error("MongoDB error:", err.message);
     process.exit(1);
   }
 }

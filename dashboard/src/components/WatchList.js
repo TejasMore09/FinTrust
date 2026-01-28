@@ -80,7 +80,7 @@ const WatchList = () => {
           type="text"
           name="search"
           id="search"
-          placeholder="Search eg:infy, bse, nifty fut weekly, gold mcx"
+          placeholder="Historical Data metrics"
           className="search"
         />
         <span className="counts"> {watchlist.length} / 50</span>
@@ -140,21 +140,21 @@ const WatchListActions = ({ uid }) => {
     <span className="actions">
       <span>
         <Tooltip
-          title="Buy (B)"
+          title="Grant (G)"
           placement="top"
           arrow
           TransitionComponent={Grow}
           onClick={handleBuyClick}
         >
-          <button className="buy">Buy</button>
+          <button className="buy">Yes</button>
         </Tooltip>
         <Tooltip
-          title="Sell (S)"
+          title="Revoke (R)"
           placement="top"
           arrow
           TransitionComponent={Grow}
         >
-          <button className="sell">Sell</button>
+          <button className="sell">No</button>
         </Tooltip>
         <Tooltip
           title="Analytics (A)"

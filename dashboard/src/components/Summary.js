@@ -10,7 +10,7 @@ const Summary = () => {
 
       <div className="section">
         <span>
-          <p>Equity</p>
+          <p>Total</p>
         </span>
 
         <div className="data">
@@ -22,10 +22,10 @@ const Summary = () => {
 
           <div className="second">
             <p>
-              Margins used <span>0</span>{" "}
+              Loan Debt <span>0</span>{" "}
             </p>
             <p>
-              Opening balance <span>3.74k</span>{" "}
+              Installments <span>3.74L</span>{" "}
             </p>
           </div>
         </div>
@@ -34,7 +34,7 @@ const Summary = () => {
 
       <div className="section">
         <span>
-          <p>Holdings (13)</p>
+          <p>Grants (13)</p>
         </span>
 
         <div className="data">
@@ -42,16 +42,16 @@ const Summary = () => {
             <h3 className="profit">
               1.55k <small>+5.20%</small>{" "}
             </h3>
-            <p>P&L</p>
+            <p>Y&N</p>
           </div>
           <hr />
 
           <div className="second">
             <p>
-              Current Value <span>31.43k</span>{" "}
+              Current Score <span>31.43L</span>{" "}
             </p>
             <p>
-              Investment <span>29.88k</span>{" "}
+              Repayment <span>29.88L</span>{" "}
             </p>
           </div>
         </div>

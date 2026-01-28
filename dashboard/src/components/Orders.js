@@ -1,44 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
 const Orders = () => {
-  const [loans, setLoans] = useState([]);
+  const [form, setForm] = useState({
+    applicantId: "",
+    months_employed: "",
+    monthly_income: "",
+    monthly_expenses: "",
+    savings_rate: "",
+    expense_volatility: "",
+    past_emi_delays: "",
+    behavior_consistency_score: "",
+  });
 
-  useEffect(() => {
-    axios.get("http://localhost:3000/loan-requests")
-      .then(res => setLoans(res.data))
-      .catch(err => console.error(err));
-  }, []);
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await axios.post("http://localhost:3000/credit-application", {
+       /* applicantId: form.applicantId,*/
+        months_employed: Number(form.months_employed),
+        monthly_income: Number(form.monthly_income),
+        monthly_expenses: Number(form.monthly_expenses),
+        savings_rate: Number(form.savings_rate),
+        expense_volatility: Number(form.expense_volatility),
+        past_emi_delays: Number(form.past_emi_delays),
+        behavior_consistency_score: Number(form.behavior_consistency_score),
+      },
+        {withCredentials: true}
+      );
+
+      alert("Credit application submitted & evaluated");
+
+      setForm({
+        applicantId: "",
+        months_employed: "",
+        monthly_income: "",
+        monthly_expenses: "",
+        savings_rate: "",
+        expense_volatility: "",
+        past_emi_delays: "",
+        behavior_consistency_score: "",
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Submission failed");
+    }
+  };
 
   return (
-    <div className="orders">
-      <h3 className="title">
-        Loan Requests ({loans.length})
-      </h3>
+    <div className="card">
+      <h3>New Credit Application</h3>
 
-      <div className="order-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Applicant ID</th>
-              <th>Amount</th>
-              <th>Tenure</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+      {Object.keys(form).map((key) => (
+        <input
+          key={key}
+          name={key}
+          placeholder={key.replaceAll("_", " ")}
+          value={form[key]}
+          onChange={handleChange}
+        />
+      ))}
 
-          <tbody>
-            {loans.map(l => (
-              <tr key={l._id}>
-                <td>{l.applicantId || "—"}</td>
-                <td>₹{l.amount}</td>
-                <td>{l.tenure} months</td>
-                <td className="neutral">{l.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 };
