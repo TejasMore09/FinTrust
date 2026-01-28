@@ -1,9 +1,27 @@
-const { model } = require("mongoose");
-const { LoanRequestSchema } = require("../schemas/LoanRequestSchema");
+const mongoose = require("mongoose");
 
-const LoanRequestModel = new model(
-  "loan_requests",
-  LoanRequestSchema
+const LoanRequestSchema = new mongoose.Schema(
+  {
+    applicantId: {
+      type: String,
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    tenure: {
+      type: Number,
+      required: true,
+    },
+    status: {
+      type: String,
+      default: "SUBMITTED",
+    },
+  },
+  { timestamps: true }
 );
 
-module.exports = { LoanRequestModel };
+module.exports = {
+  LoanRequestModel: mongoose.model("LoanRequest", LoanRequestSchema),
+};
